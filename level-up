@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+source ./progress-bar.sh
+
+read -rp "What will you work on? " task
+
+progress-bar 5
+
+if [ $? ]; then
+  echo "Completed task: ${task}"
+fi
+
