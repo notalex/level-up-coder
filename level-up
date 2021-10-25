@@ -1,12 +1,33 @@
 #! /usr/bin/env bash
 
-source ./progress-bar.sh
+set -e
+
+source ./lib/progress-bar.sh
+source ./db/user-config.sh
+source ./lib/fib-helper.sh
 
 read -rp "What will you work on? " task
+read -rp "for how many minutes? " currentMins
 
-progress-bar 5
+progress-bar $(($currentMins * 60))
 
-if [ $? ]; then
-  echo "Completed task: ${task}"
+hours=$totalHours
+mins=$(($currentMins + $prevMins))
+
+if [ $((60 - $mins)) -le 0 ]; then
+  hours=$(($totalHours + 1))
+  mins=$(($mins - 60))
 fi
 
+rankWithHours=$(fib-index-value $hours)
+rank=$(echo $rankWithHours | cut -d ' ' -f 1)
+levelUpXP=$(echo $rankWithHours | cut -d ' ' -f 2)
+title=$(cat db/titles | tail -$rank | head -1)
+
+echo "===* $title $username (Rank $rank) *==="
+echo "worked for $currentMins mins on: ${task}"
+echo "XP reqd to level up: $(($levelUpXP * 60 - $mins)) ($levelUpXP)"
+
+printf "username='$username'
+        prevMins=$mins
+        totalHours=$hours" > ./db/user-config.sh
